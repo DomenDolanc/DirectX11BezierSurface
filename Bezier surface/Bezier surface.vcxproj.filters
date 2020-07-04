@@ -44,6 +44,9 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Filter Include="Common\Objects">
+      <UniqueIdentifier>{cc32b8be-bec1-4208-9e44-bc0fc010cabb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -57,6 +60,9 @@
     <ClCompile Include="Content\TextRenderer.cpp">
       <Filter>Content</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Objects\Surface.cpp">
+      <Filter>Common\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bezier_surfaceMain.h" />
@@ -66,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="Content\TextRenderer.h">
       <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Objects\Surface.h">
+      <Filter>Common\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

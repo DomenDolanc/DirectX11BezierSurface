@@ -255,6 +255,7 @@
     </ClInclude>
     <ClInclude Include="Common\DeviceResources.h" />
     <ClInclude Include="Bezier_surfaceMain.h" />
+    <ClInclude Include="Common\Objects\Surface.h" />
     <ClInclude Include="DirectXPage.xaml.h">
       <DependentUpon>DirectXPage.xaml</DependentUpon>
     </ClInclude>
@@ -271,6 +272,7 @@
     </ClCompile>
     <ClCompile Include="Common\DeviceResources.cpp" />
     <ClCompile Include="Bezier_surfaceMain.cpp" />
+    <ClCompile Include="Common\Objects\Surface.cpp" />
     <ClCompile Include="DirectXPage.xaml.cpp">
       <DependentUpon>DirectXPage.xaml</DependentUpon>
     </ClCompile>

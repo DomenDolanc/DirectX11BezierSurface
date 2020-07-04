@@ -11,7 +11,7 @@ namespace Bezier_surface
 	};
 
 	// Used to send per-vertex data to the vertex shader.
-	struct VertexPositionColor
+	struct VertexPosition
 	{
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 color;
