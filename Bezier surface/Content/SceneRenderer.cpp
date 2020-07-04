@@ -70,6 +70,7 @@ void SceneRenderer::CreateWindowSizeDependentResources()
 // Called once per frame, rotates the cube and calculates the model and view matrices.
 void SceneRenderer::Update(DX::StepTimer const& timer)
 {
+
 }
 
 // Rotate the 3D cube model a set amount of radians.
@@ -140,6 +141,10 @@ void SceneRenderer::Render()
 		nullptr
 		);
 
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+	context->HSSetShader(m_hullShader.Get(), nullptr, 0);
+	context->DSSetShader(m_domainShader.Get(), nullptr, 0);
+
 	// Attach our pixel shader.
 	context->PSSetShader(
 		m_pixelShader.Get(),
@@ -155,6 +160,8 @@ void SceneRenderer::CreateDeviceDependentResources()
 	// Load shaders asynchronously.
 	auto loadVSTask = DX::ReadDataAsync(L"VertexShader.cso");
 	auto loadPSTask = DX::ReadDataAsync(L"PixelShader.cso");
+	auto loadHSTask = DX::ReadDataAsync(L"HullShader.cso");
+	auto loadDSTask = DX::ReadDataAsync(L"DomainShader.cso");
 
 	// After the vertex shader file is loaded, create the shader and input layout.
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
@@ -205,8 +212,16 @@ void SceneRenderer::CreateDeviceDependentResources()
 			);
 	});
 
+	auto createHSTask = loadHSTask.then([this](const std::vector<byte>& fileData) {
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateHullShader(&fileData[0], fileData.size(), nullptr, &m_hullShader));
+		});
+
+	auto createDSTask = loadDSTask.then([this](const std::vector<byte>& fileData) {
+		DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateDomainShader(&fileData[0], fileData.size(), nullptr, &m_domainShader));
+		});
+
 	// Once both shaders are loaded, create the mesh.
-	auto createCubeTask = (createPSTask && createVSTask).then([this] () {
+	auto createCubeTask = (createPSTask && createVSTask && createHSTask && createDSTask).then([this] () {
 
 		m_Surface->CreateVertices();
 		m_Surface->CreateQuadIndices();

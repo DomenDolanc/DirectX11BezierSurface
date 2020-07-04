@@ -35,6 +35,8 @@ namespace Bezier_surface
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_vertexShader;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
+		Microsoft::WRL::ComPtr<ID3D11HullShader>	m_hullShader;
+		Microsoft::WRL::ComPtr<ID3D11DomainShader>	m_domainShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
 
 		// System resources for cube geometry.
