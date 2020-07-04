@@ -41,6 +41,7 @@ namespace DX
 		ID3D11DepthStencilView*		GetDepthStencilView() const				{ return m_d3dDepthStencilView.Get(); }
 		D3D11_VIEWPORT				GetScreenViewport() const				{ return m_screenViewport; }
 		DirectX::XMFLOAT4X4			GetOrientationTransform3D() const		{ return m_orientationTransform3D; }
+		ID3D11RasterizerState*		GetRasterizerState() const				{ return m_rasterizerState.Get(); }
 
 		// D2D Accessors.
 		ID2D1Factory3*				GetD2DFactory() const					{ return m_d2dFactory.Get(); }
@@ -62,6 +63,7 @@ namespace DX
 		Microsoft::WRL::ComPtr<ID3D11Device3>			m_d3dDevice;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext3>	m_d3dContext;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3>			m_swapChain;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState>	m_rasterizerState;
 
 		// Direct3D rendering objects. Required for 3D.
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView1>	m_d3dRenderTargetView;

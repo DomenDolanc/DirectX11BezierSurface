@@ -478,6 +478,12 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 
 	// Grayscale text anti-aliasing is recommended for all Microsoft Store apps.
 	m_d2dContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+
+	D3D11_RASTERIZER_DESC rasterizerDesc = { 0 };
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
+	DX::ThrowIfFailed(m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_rasterizerState));
 }
 
 // Determine the dimensions of the render target and whether it will be scaled down.

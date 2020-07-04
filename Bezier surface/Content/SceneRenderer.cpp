@@ -123,7 +123,11 @@ void SceneRenderer::Render()
 		);
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	auto rasterizer = m_deviceResources->GetRasterizerState();
+
 	context->IASetInputLayout(m_inputLayout.Get());
+	context->RSSetState(rasterizer);
 
 	// Attach our vertex shader.
 	context->VSSetShader(
