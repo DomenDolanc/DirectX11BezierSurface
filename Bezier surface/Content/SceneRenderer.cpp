@@ -111,50 +111,47 @@ void SceneRenderer::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// Prepare the constant buffer to send it to the graphics device.
-	context->UpdateSubresource1(
-		m_constantBuffer.Get(),
-		0,
-		NULL,
-		&m_constantBufferData,
-		0,
-		0,
-		0
-		);
+	XMMATRIX tmpMatrix = XMLoadFloat4x4(&m_Surface->getControlPointsMatrix());
+	tmpMatrix = XMMatrixTranspose(tmpMatrix);
+	XMStoreFloat4x4(&m_calculationBufferData.controlPoints, tmpMatrix);
 
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_calculationBufferData.transposedBezierCoeficients = m_Surface->getBezierMatrix();
+
+	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
+	tmpMatrix = XMMatrixTranspose(tmpMatrix);
+	XMStoreFloat4x4(&m_calculationBufferData.bezierCoeficients, tmpMatrix);
+
+	XMMATRIX m = XMMatrixMultiply(XMMatrixMultiply(XMLoadFloat4x4(&m_Surface->getBezierMatrix()), XMLoadFloat4x4(&m_Surface->getControlPointsMatrix())), tmpMatrix);
+	
+	XMVECTOR v1 = { 1.0, 0.0, 0.0, 0.0 };
+	XMVECTOR v2 = { 1.0, 0.0, 0.0, 0.0 };
+	XMVECTOR dot = DirectX::XMVector4Dot(DirectX::XMVector4Transform(v1, m), v2);
+
+	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
+	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
+
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	auto rasterizer = m_deviceResources->GetRasterizerState();
 
 	context->IASetInputLayout(m_inputLayout.Get());
 	context->RSSetState(rasterizer);
 
-	// Attach our vertex shader.
-	context->VSSetShader(
-		m_vertexShader.Get(),
-		nullptr,
-		0
-		);
+	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 
-	// Send the constant buffer to the graphics device.
-	context->VSSetConstantBuffers1(
-		0,
-		1,
-		m_constantBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-		);
+	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+	context->HSSetShader(nullptr, nullptr, 0);
+	context->DSSetShader(nullptr, nullptr, 0);
+
+	m_Surface->DrawControlPoints();
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	context->HSSetShader(m_hullShader.Get(), nullptr, 0);
 	context->DSSetShader(m_domainShader.Get(), nullptr, 0);
+	context->DSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+	context->DSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
 
-	// Attach our pixel shader.
-	context->PSSetShader(
-		m_pixelShader.Get(),
-		nullptr,
-		0
-		);
+	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
 	m_Surface->Draw();
 }
@@ -206,14 +203,23 @@ void SceneRenderer::CreateDeviceDependentResources()
 				)
 			);
 
-		CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ModelViewProjectionConstantBuffer) , D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc,
 				nullptr,
 				&m_constantBuffer
-				)
-			);
+			)
+		);
+
+		CD3D11_BUFFER_DESC calcConstantBufferDesc(sizeof(CalculationConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateBuffer(
+				&calcConstantBufferDesc,
+				nullptr,
+				&m_calculationConstantBuffer
+			)
+		);
 	});
 
 	auto createHSTask = loadHSTask.then([this](const std::vector<byte>& fileData) {
@@ -228,6 +234,7 @@ void SceneRenderer::CreateDeviceDependentResources()
 	auto createCubeTask = (createPSTask && createVSTask && createHSTask && createDSTask).then([this] () {
 
 		m_Surface->CreateVertices();
+		m_Surface->CreateIndices();
 		m_Surface->CreateQuadIndices();
 	});
 

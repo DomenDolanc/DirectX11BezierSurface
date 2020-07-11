@@ -26,12 +26,13 @@ namespace Bezier_surface
         DirectX::XMFLOAT2 getGridSize();
         void setGridSize(float columns, float rows);
 
-        DirectX::XMMATRIX getControlPointsMatrix() const { return m_controlPointsMatrix; };
-        DirectX::XMMATRIX getBezierMatrix() const { return m_bezierMatrix; };
+        DirectX::XMFLOAT4X4 getControlPointsMatrix() const { return m_controlPointsMatrix; };
+        DirectX::XMFLOAT4X4 getBezierMatrix() const { return m_bezierMatrix; };
 
         void ResetBuffers();
 
         void Draw();
+        void DrawControlPoints();
 
     private:
         void CreateBezierMatrix();
@@ -44,16 +45,19 @@ namespace Bezier_surface
 
         std::vector<VertexPosition> m_vertices;
         std::vector<uint32_t> m_indices;
+        std::vector<uint32_t> m_controlIndices;
         size_t	m_verticesCount;
+        size_t	m_controlIndexCount;
         size_t	m_indexCount;
 
-        DirectX::XMMATRIX m_controlPointsMatrix;
-        DirectX::XMMATRIX m_bezierMatrix;
+        DirectX::XMFLOAT4X4 m_controlPointsMatrix;
+        DirectX::XMFLOAT4X4 m_bezierMatrix;
 
         
         bool m_loadingComplete = true;
 
         Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_controlIndexBuffer;
         Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
     };
 }

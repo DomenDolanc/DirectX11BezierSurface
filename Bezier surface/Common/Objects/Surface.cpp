@@ -31,6 +31,7 @@ Surface::~Surface()
 {
     m_vertices.clear();
     m_indices.clear();
+    m_controlIndices.clear();
 }
 
 void Surface::CreateVertices()
@@ -54,25 +55,24 @@ void Surface::CreateVertices()
 
     float tempX = startX;
 
-    XMFLOAT4X4 tmpMatrix;
-
     for (int i = 0; i < m_Columns; i++)
     {
         float tempZ = startZ;
         for (int j = 0; j < m_Rows; j++)
         {
             VertexPosition vertex;
-            vertex.pos = XMFLOAT3(tempX, rand() / double(RAND_MAX) / 4 - 1, tempZ);
+            //vertex.pos = XMFLOAT3(tempX, rand() / double(RAND_MAX) - 1, tempZ);
+            vertex.pos = XMFLOAT3(tempX, 0.5, tempZ);
+            if ((i == 0 || j == 0) || (i == 3 || j == 3))
+                vertex.pos.y = 0.0;
             vertex.color = XMFLOAT3(0.0f, 1.0f, 0.0f);
 
-            tmpMatrix.m[i][j] = vertex.pos.y;
+            m_controlPointsMatrix.m[i][j] = vertex.pos.y;
             m_vertices.emplace_back(vertex);
             tempZ += stepZ;
         }
         tempX += stepX;
     }
-
-    m_controlPointsMatrix = XMLoadFloat4x4(&tmpMatrix);
 
     m_verticesCount = m_vertices.size();
 
@@ -86,30 +86,28 @@ void Surface::CreateVertices()
 
 void Surface::CreateIndices()
 {
-    m_indexBuffer.Reset();
-    m_indices.clear();
-    for (int i = 0; i < m_Columns - 1; i++)
+    m_controlIndexBuffer.Reset();
+    m_controlIndices.clear();
+    for (int i = 0; i < m_Columns; i++)
     {
         for (int j = 0; j < m_Rows - 1; j++)
-        {
-            m_indices.emplace_back(i * m_Rows + j);             // 0
-            m_indices.emplace_back((i + 1) * m_Rows + j);       // 2
-            m_indices.emplace_back(i * m_Rows + j + 1);         // 1
-            m_indices.emplace_back((i + 1) * m_Rows + j);       // 2
-            m_indices.emplace_back((i + 1) * m_Rows + j + 1);   // 3
-            m_indices.emplace_back(i * m_Rows + j + 1);         // 1
+        { 
+            m_controlIndices.emplace_back(i * m_Rows + j);
+            m_controlIndices.emplace_back(i * m_Rows + j + 1); 
+
+            m_controlIndices.emplace_back(j * m_Columns + i);
+            m_controlIndices.emplace_back((j + 1) * m_Columns + i); 
         }
-        m_indices.emplace_back(-1);
     }
 
-    m_indexCount = m_indices.size();
+    m_controlIndexCount = m_controlIndices.size();
 
     D3D11_SUBRESOURCE_DATA indexBufferData = { 0 };
-    indexBufferData.pSysMem = &m_indices.front();
+    indexBufferData.pSysMem = &m_controlIndices.front();
     indexBufferData.SysMemPitch = 0;
     indexBufferData.SysMemSlicePitch = 0;
-    CD3D11_BUFFER_DESC indexBufferDesc(m_indexCount * sizeof(uint32_t), D3D11_BIND_INDEX_BUFFER);
-    DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_indexBuffer));
+    CD3D11_BUFFER_DESC indexBufferDesc(m_controlIndexCount * sizeof(uint32_t), D3D11_BIND_INDEX_BUFFER);
+    DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_controlIndexBuffer));
 }
 
 void Surface::CreateQuadIndices()
@@ -168,6 +166,7 @@ void Surface::ResetBuffers()
 {
     m_vertexBuffer.Reset();
     m_indexBuffer.Reset();
+    m_controlIndexBuffer.Reset();
 }
 
 void Surface::Draw()
@@ -182,28 +181,37 @@ void Surface::Draw()
     context->DrawIndexed(m_indexCount, 0, 0);
 }
 
+void Surface::DrawControlPoints()
+{
+    auto context = m_deviceResources->GetD3DDeviceContext();
+
+    UINT stride = sizeof(VertexPosition);
+    UINT offset = 0;
+    context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+    context->IASetIndexBuffer(m_controlIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+    context->DrawIndexed(m_controlIndexCount, 0, 0);
+}
+
 void Bezier_surface::Surface::CreateBezierMatrix()
 {
-    XMFLOAT4X4 tmpMatrix;
-    tmpMatrix._11 = 1.0;
-    tmpMatrix._12 = 0.0;
-    tmpMatrix._13 = 0.0;
-    tmpMatrix._14 = 0.0;
+    m_bezierMatrix._11 = 1.0;
+    m_bezierMatrix._12 = 0.0;
+    m_bezierMatrix._13 = 0.0;
+    m_bezierMatrix._14 = 0.0;
 
-    tmpMatrix._21 = -3.0;
-    tmpMatrix._22 = 3.0;
-    tmpMatrix._23 = 0.0;
-    tmpMatrix._24 = 0.0;
+    m_bezierMatrix._21 = -3.0;
+    m_bezierMatrix._22 = 3.0;
+    m_bezierMatrix._23 = 0.0;
+    m_bezierMatrix._24 = 0.0;
 
-    tmpMatrix._31 = 3.0;
-    tmpMatrix._32 = -6.0;
-    tmpMatrix._33 = 3.0;
-    tmpMatrix._34 = 0.0;
+    m_bezierMatrix._31 = 3.0;
+    m_bezierMatrix._32 = -6.0;
+    m_bezierMatrix._33 = 3.0;
+    m_bezierMatrix._34 = 0.0;
 
-    tmpMatrix._41 = -1.0;
-    tmpMatrix._42 = 3.0;
-    tmpMatrix._43 = -3.0;
-    tmpMatrix._44 = 1.0;
-
-    m_bezierMatrix = XMLoadFloat4x4(&tmpMatrix);
+    m_bezierMatrix._41 = -1.0;
+    m_bezierMatrix._42 = 3.0;
+    m_bezierMatrix._43 = -3.0;
+    m_bezierMatrix._44 = 1.0;
 }

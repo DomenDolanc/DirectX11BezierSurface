@@ -38,9 +38,11 @@ namespace Bezier_surface
 		Microsoft::WRL::ComPtr<ID3D11HullShader>	m_hullShader;
 		Microsoft::WRL::ComPtr<ID3D11DomainShader>	m_domainShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_calculationConstantBuffer;
 
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
+		CalculationConstantBuffer	m_calculationBufferData;
 
 
 		std::shared_ptr<Surface> m_Surface;
