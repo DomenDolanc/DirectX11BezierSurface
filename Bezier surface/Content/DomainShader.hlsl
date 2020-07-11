@@ -19,7 +19,6 @@ struct DS_OUTPUT
     float3 color : COLOR0;
 };
 
-// Output control point
 struct HS_CONTROL_POINT_OUTPUT
 {
     float4 pos : SV_POSITION;
@@ -27,12 +26,10 @@ struct HS_CONTROL_POINT_OUTPUT
     float3 color : COLOR0;
 };
 
-// Output patch constant data.
 struct HS_CONSTANT_DATA_OUTPUT
 {
-    float EdgeTessFactor[4] : SV_TessFactor; // e.g. would be [4] for a quad domain
-    float InsideTessFactor[2] : SV_InsideTessFactor; // e.g. would be Inside[2] for a quad domain
-	// TODO: change/add other stuff
+    float EdgeTessFactor[4] : SV_TessFactor; 
+    float InsideTessFactor[2] : SV_InsideTessFactor;
 };
 
 float getInterpolatedHeght(float2 controlPos)
