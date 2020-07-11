@@ -9,7 +9,7 @@ using namespace Concurrency;
 
 // Loads and initializes application assets when the application is loaded.
 Bezier_surfaceMain::Bezier_surfaceMain(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
-	m_deviceResources(deviceResources), m_pointerLocationX(0.0f)
+	m_deviceResources(deviceResources), m_pointerLocationX(0.0f), m_pointerLocationY(0.0f)
 {
 	// Register to be notified if the Device is lost or recreated
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -90,7 +90,7 @@ void Bezier_surfaceMain::Update()
 void Bezier_surfaceMain::ProcessInput()
 {
 	// TODO: Add per frame input handling here.
-	m_sceneRenderer->TrackingUpdate(m_pointerLocationX);
+	m_sceneRenderer->TrackingUpdate(m_pointerLocationX, m_pointerLocationY);
 }
 
 // Renders the current frame according to the current application state.

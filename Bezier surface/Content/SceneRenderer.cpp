@@ -74,10 +74,10 @@ void SceneRenderer::Update(DX::StepTimer const& timer)
 }
 
 // Rotate the 3D cube model a set amount of radians.
-void SceneRenderer::Rotate(float radians)
+void SceneRenderer::Rotate(float radiansX, float radiansY)
 {
 	// Prepare to pass the updated model matrix to the shader
-	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(XMMatrixRotationY(radians)));
+	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(XMMatrixMultiply(XMMatrixRotationY(radiansX), XMMatrixRotationX(radiansY))));
 }
 
 void SceneRenderer::StartTracking()
@@ -86,12 +86,13 @@ void SceneRenderer::StartTracking()
 }
 
 // When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
-void SceneRenderer::TrackingUpdate(float positionX)
+void SceneRenderer::TrackingUpdate(float positionX, float positionY)
 {
 	if (m_tracking)
 	{
-		float radians = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
-		Rotate(radians);
+		float radiansX = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
+		float radiansY = XM_2PI * 2.0f * positionY / m_deviceResources->GetOutputSize().Width;
+		Rotate(radiansX, radiansY);
 	}
 }
 

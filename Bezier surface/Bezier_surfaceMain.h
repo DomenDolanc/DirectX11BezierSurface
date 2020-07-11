@@ -15,7 +15,7 @@ namespace Bezier_surface
 		~Bezier_surfaceMain();
 		void CreateWindowSizeDependentResources();
 		void StartTracking() { m_sceneRenderer->StartTracking(); }
-		void TrackingUpdate(float positionX) { m_pointerLocationX = positionX; }
+		void TrackingUpdate(float positionX, float positionY) { m_pointerLocationX = positionX; m_pointerLocationY = positionY; }
 		void StopTracking() { m_sceneRenderer->StopTracking(); }
 		bool IsTracking() { return m_sceneRenderer->IsTracking(); }
 		void StartRenderLoop();
@@ -46,5 +46,6 @@ namespace Bezier_surface
 
 		// Track current input pointer position.
 		float m_pointerLocationX;
+		float m_pointerLocationY;
 	};
 }
