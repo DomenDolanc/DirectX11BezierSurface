@@ -5,10 +5,17 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
 	matrix projection;
 };
 
+cbuffer CalculationConstantBuffer : register(b1)
+{
+    matrix bezierCoeficients;
+    matrix transposedBezierCoeficients;
+    matrix controlPoints;
+    float4 color;
+};
+
 struct VertexShaderInput
 {
 	float3 pos : POSITION;
-	float3 color : COLOR0;
 };
 
 struct PixelShaderInput
@@ -27,7 +34,7 @@ PixelShaderInput main(VertexShaderInput input)
 	pos = mul(pos, projection);
 	output.pos = pos;
     output.controlPoint = input.pos.xz + 0.5f;
-	output.color = input.color;
+    output.color = color;
 
 	return output;
 }

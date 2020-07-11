@@ -15,12 +15,13 @@ namespace Bezier_surface
 		DirectX::XMFLOAT4X4 bezierCoeficients;
 		DirectX::XMFLOAT4X4 transposedBezierCoeficients;
 		DirectX::XMFLOAT4X4 controlPoints;
+
+		DirectX::XMFLOAT4 color;
 	};
 
 	// Used to send per-vertex data to the vertex shader.
 	struct VertexPosition
 	{
 		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 color;
 	};
 }

@@ -116,16 +116,13 @@ void SceneRenderer::Render()
 	XMStoreFloat4x4(&m_calculationBufferData.controlPoints, tmpMatrix);
 
 	m_calculationBufferData.transposedBezierCoeficients = m_Surface->getBezierMatrix();
+	m_calculationBufferData.color = {1.0, 0.0, 0.0, 1.0};
 
 	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
 	tmpMatrix = XMMatrixTranspose(tmpMatrix);
 	XMStoreFloat4x4(&m_calculationBufferData.bezierCoeficients, tmpMatrix);
 
 	XMMATRIX m = XMMatrixMultiply(XMMatrixMultiply(XMLoadFloat4x4(&m_Surface->getBezierMatrix()), XMLoadFloat4x4(&m_Surface->getControlPointsMatrix())), tmpMatrix);
-	
-	XMVECTOR v1 = { 1.0, 0.0, 0.0, 0.0 };
-	XMVECTOR v2 = { 1.0, 0.0, 0.0, 0.0 };
-	XMVECTOR dot = DirectX::XMVector4Dot(DirectX::XMVector4Transform(v1, m), v2);
 
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
 	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
@@ -140,6 +137,7 @@ void SceneRenderer::Render()
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 
 	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
+	context->VSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
 	context->HSSetShader(nullptr, nullptr, 0);
 	context->DSSetShader(nullptr, nullptr, 0);
 
@@ -152,6 +150,9 @@ void SceneRenderer::Render()
 	context->DSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
+	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
+	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
 
 	m_Surface->Draw();
 }

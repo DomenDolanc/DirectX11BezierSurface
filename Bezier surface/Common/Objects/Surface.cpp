@@ -61,12 +61,7 @@ void Surface::CreateVertices()
         for (int j = 0; j < m_Rows; j++)
         {
             VertexPosition vertex;
-            //vertex.pos = XMFLOAT3(tempX, rand() / double(RAND_MAX) - 1, tempZ);
-            vertex.pos = XMFLOAT3(tempX, 0.5, tempZ);
-            if ((i == 0 || j == 0) || (i == 3 || j == 3))
-                vertex.pos.y = 0.0;
-            vertex.color = XMFLOAT3(0.0f, 1.0f, 0.0f);
-
+            vertex.pos = XMFLOAT3(tempX, rand() / double(RAND_MAX) - 0.5, tempZ);
             m_controlPointsMatrix.m[i][j] = vertex.pos.y;
             m_vertices.emplace_back(vertex);
             tempZ += stepZ;
