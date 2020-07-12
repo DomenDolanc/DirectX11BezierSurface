@@ -1,6 +1,14 @@
 ﻿#pragma once
 
 #include <ppltasks.h>	// For create_task
+#include <DirectXMath.h>
+
+struct ProjectedPoint
+{
+	int screenX;
+	int screenY;
+	float depth;
+};
 
 namespace DX
 {
@@ -38,6 +46,27 @@ namespace DX
 	{
 		static const float dipsPerInch = 96.0f;
 		return floorf(dips * dpi / dipsPerInch + 0.5f); // Round to nearest integer.
+	}
+
+	inline ProjectedPoint ProjectToScreen(DirectX::XMFLOAT3 point, DirectX::XMMATRIX model, DirectX::XMMATRIX view, DirectX::XMMATRIX proj, D3D11_VIEWPORT viewPort)
+	{
+		ProjectedPoint result;
+		DirectX::XMFLOAT4 homogenous = { point.x, point.y, point.z, 1.0 };
+		DirectX::XMVECTOR vector = XMLoadFloat4(&homogenous);
+		auto transformed = XMVector4Transform(vector, model);
+		auto eyeSpace = XMVector4Transform(transformed, view);
+		auto projected = XMVector4Transform(eyeSpace, proj);
+		XMStoreFloat4(&homogenous, projected);
+		if (homogenous.w > 0.0)
+		{
+			homogenous.x /= homogenous.w;
+			homogenous.y /= homogenous.w;
+			homogenous.z /= homogenous.w;
+		}
+		result.screenX = (int)round(((homogenous.x + 1) / 2.0) * viewPort.Width);
+		result.screenY = (int)round(((1 - homogenous.y) / 2.0) * viewPort.Height);
+		result.depth = homogenous.z;
+		return result;
 	}
 
 #if defined(_DEBUG)

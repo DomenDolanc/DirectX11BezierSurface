@@ -27,11 +27,12 @@ namespace Bezier_surface
 	private:
 		void Rotate(float radiansX, float radiansY);
 
+		void FindAndSetDraggedControlPoint(int x, int y);
+		DirectX::XMFLOAT3 UnprojectDraggedControlPoint(int x, int y);
+
 	private:
-		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
-		// Direct3D resources for cube geometry.
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_vertexShader;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
@@ -40,17 +41,18 @@ namespace Bezier_surface
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_calculationConstantBuffer;
 
-		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		CalculationConstantBuffer	m_calculationBufferData;
 
-
 		std::shared_ptr<Surface> m_Surface;
 
-		// Variables used with the rendering loop.
+		ControlPointParams m_HoveredControlPoint;
+
 		bool	m_loadingComplete;
 		float	m_degreesPerSecond;
 		bool	m_tracking;
+		bool	m_isRotating;
+		bool	m_isDraggingControlPoint;
 	};
 }
 

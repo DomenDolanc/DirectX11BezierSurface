@@ -61,7 +61,9 @@ void Surface::CreateVertices()
         for (int j = 0; j < m_Rows; j++)
         {
             VertexPosition vertex;
-            vertex.pos = XMFLOAT3(tempX, rand() / double(RAND_MAX) - 0.5, tempZ);
+            vertex.pos = XMFLOAT3(tempX, 0.0, tempZ);
+            if (i == 0 || j == 0 || i == 3 || j == 3)
+                vertex.pos.y = -0.5f;
             m_controlPointsMatrix.m[i][j] = vertex.pos.y;
             m_vertices.emplace_back(vertex);
             tempZ += stepZ;
@@ -76,6 +78,8 @@ void Surface::CreateVertices()
     vertexBufferData.SysMemPitch = 0;
     vertexBufferData.SysMemSlicePitch = 0;
     CD3D11_BUFFER_DESC vertexBufferDesc(m_verticesCount * sizeof(VertexPosition), D3D11_BIND_VERTEX_BUFFER);
+    vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_vertexBuffer));
 }
 
@@ -129,6 +133,25 @@ void Surface::CreateQuadIndices()
     indexBufferData.SysMemSlicePitch = 0;
     CD3D11_BUFFER_DESC indexBufferDesc(m_indexCount * sizeof(uint32_t), D3D11_BIND_INDEX_BUFFER);
     DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_indexBuffer));
+}
+
+void Bezier_surface::Surface::UpdateControlPoint(int index, VertexPosition& vertex)
+{
+    m_vertices[index].pos.y = vertex.pos.y;
+    m_controlPointsMatrix.m[index / m_Rows][index - (index / m_Rows * m_Columns)] = vertex.pos.y;
+    UpdateVertices();
+}
+
+void Bezier_surface::Surface::UpdateVertices()
+{
+    m_loadingComplete = false;
+
+    D3D11_MAPPED_SUBRESOURCE subResource;
+    DX::ThrowIfFailed(m_deviceResources->GetD3DDeviceContext()->Map(m_vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource));
+    memcpy(subResource.pData, &m_vertices.front(), sizeof(VertexPosition) * m_verticesCount);
+    m_deviceResources->GetD3DDeviceContext()->Unmap(m_vertexBuffer.Get(), 0);
+
+    m_loadingComplete = true;
 }
 
 size_t Surface::getVerticesCount()

@@ -7,6 +7,13 @@
 
 namespace Bezier_surface
 {
+    struct ControlPointParams
+    {
+        VertexPosition Vertex;
+        int VertexIndex;
+        double Depth;
+    };
+
     class Surface
     {
     public:
@@ -18,8 +25,16 @@ namespace Bezier_surface
         void CreateIndices();
         void CreateQuadIndices();
 
+        void UpdateControlPoint(int index, VertexPosition& vertex);
+
+        void UpdateVertices();
+
         size_t getVerticesCount();
         size_t getIndicesCount();
+
+        std::vector<VertexPosition> getVertices() const { return m_vertices; };
+
+        boolean isReadyForDrawing() const { return m_loadingComplete; };
 
         void setScaling(double scaling);
 

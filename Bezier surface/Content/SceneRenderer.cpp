@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "SceneRenderer.h"
-
 #include "..\Common\DirectXHelper.h"
 
 using namespace Bezier_surface;
@@ -88,24 +87,85 @@ void SceneRenderer::StartTracking()
 // When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
 void SceneRenderer::TrackingUpdate(float positionX, float positionY)
 {
+	if (m_Surface->isReadyForDrawing() && !m_isDraggingControlPoint && !m_isRotating)
+		FindAndSetDraggedControlPoint(positionX, positionY);
+
 	if (m_tracking)
 	{
-		float radiansX = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
-		float radiansY = XM_2PI * 2.0f * positionY / m_deviceResources->GetOutputSize().Width;
-		Rotate(radiansX, radiansY);
+		if (m_isDraggingControlPoint)
+		{
+			m_HoveredControlPoint.Vertex.pos = UnprojectDraggedControlPoint(positionX, positionY);
+			m_Surface->UpdateControlPoint(m_HoveredControlPoint.VertexIndex, m_HoveredControlPoint.Vertex);
+		} 
+		else
+		{
+			float radiansX = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
+			float radiansY = XM_2PI * 2.0f * positionY / m_deviceResources->GetOutputSize().Width;
+			Rotate(radiansX, radiansY);
+			m_isRotating = true;
+		}
 	}
+}
+
+void Bezier_surface::SceneRenderer::FindAndSetDraggedControlPoint(int x, int y)
+{
+	constexpr double MIN_DISTANCE = 8;
+
+	D3D11_VIEWPORT viewPort = m_deviceResources->GetScreenViewport();
+	std::vector<VertexPosition> vertices = m_Surface->getVertices();
+
+	XMMATRIX proj = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.projection));
+	XMMATRIX view = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.view));
+	XMMATRIX model = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.model));
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		VertexPosition vertex = vertices[i];
+		ProjectedPoint projected = DX::ProjectToScreen(vertex.pos, model, view, proj, viewPort);
+
+		int xDiff = projected.screenX - x;
+		int yDiff = projected.screenY - y;
+		double dist = sqrt(xDiff * xDiff + yDiff * yDiff);
+		if (dist < MIN_DISTANCE)
+		{
+			m_HoveredControlPoint.Depth = projected.depth;
+			m_HoveredControlPoint.Vertex = vertex;
+			m_HoveredControlPoint.VertexIndex = i;
+
+			m_isDraggingControlPoint = true;
+			break;
+		}
+	}
+}
+
+DirectX::XMFLOAT3 Bezier_surface::SceneRenderer::UnprojectDraggedControlPoint(int x, int y)
+{
+	XMFLOAT3 unprojectedPoint;
+	D3D11_VIEWPORT viewPort = m_deviceResources->GetScreenViewport();
+	XMMATRIX proj = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.projection));
+	XMMATRIX view = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.view));
+	XMMATRIX model = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.model));
+	XMVECTOR clipSpace = XMVectorSet(x, y, m_HoveredControlPoint.Depth, 0.0f);
+
+	XMVECTOR unprojected = XMVector3Unproject(clipSpace, 0.0f, 0.0f, viewPort.Width, viewPort.Height, 0.0f, 1.0f, proj, view, XMMatrixIdentity());
+	unprojected = XMVector3Transform(unprojected, XMMatrixInverse(nullptr, model));
+
+	XMStoreFloat3(&unprojectedPoint, unprojected);
+	return unprojectedPoint;
 }
 
 void SceneRenderer::StopTracking()
 {
 	m_tracking = false;
+	m_isRotating = false;
+	m_isDraggingControlPoint = false;
 }
 
 // Renders one frame using the vertex and pixel shaders.
 void SceneRenderer::Render()
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
-	if (!m_loadingComplete)
+	if (!m_loadingComplete || !m_Surface->isReadyForDrawing())
 	{
 		return;
 	}
@@ -117,7 +177,7 @@ void SceneRenderer::Render()
 	XMStoreFloat4x4(&m_calculationBufferData.controlPoints, tmpMatrix);
 
 	m_calculationBufferData.transposedBezierCoeficients = m_Surface->getBezierMatrix();
-	m_calculationBufferData.color = {1.0, 0.0, 0.0, 1.0};
+	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
 
 	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
 	tmpMatrix = XMMatrixTranspose(tmpMatrix);
@@ -128,8 +188,6 @@ void SceneRenderer::Render()
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
 	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
 
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
 	auto rasterizer = m_deviceResources->GetRasterizerState();
 
 	context->IASetInputLayout(m_inputLayout.Get());
@@ -139,10 +197,6 @@ void SceneRenderer::Render()
 
 	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 	context->VSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
-	context->HSSetShader(nullptr, nullptr, 0);
-	context->DSSetShader(nullptr, nullptr, 0);
-
-	m_Surface->DrawControlPoints();
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	context->HSSetShader(m_hullShader.Get(), nullptr, 0);
@@ -152,10 +206,16 @@ void SceneRenderer::Render()
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
-	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
-	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
-
 	m_Surface->Draw();
+
+	m_calculationBufferData.color = { 1.0, 0.0, 0.0, 1.0 };
+	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	context->HSSetShader(nullptr, nullptr, 0);
+	context->DSSetShader(nullptr, nullptr, 0);
+
+	m_Surface->DrawControlPoints();
 }
 
 void SceneRenderer::CreateDeviceDependentResources()
