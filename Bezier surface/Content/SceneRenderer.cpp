@@ -99,12 +99,15 @@ void SceneRenderer::TrackingUpdate(float positionX, float positionY)
 		} 
 		else
 		{
-			float radiansX = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
-			float radiansY = XM_2PI * 2.0f * positionY / m_deviceResources->GetOutputSize().Width;
-			Rotate(radiansX, radiansY);
+			m_radiansX += XM_2PI * 2.0f * (positionX - m_mousePosX) / m_deviceResources->GetOutputSize().Width;
+			m_radiansY += XM_2PI * 2.0f * (positionY - m_mousePosY) / m_deviceResources->GetOutputSize().Width;
+			Rotate(m_radiansX, m_radiansY);
 			m_isRotating = true;
 		}
 	}
+
+	m_mousePosX = positionX;
+	m_mousePosY = positionY;
 }
 
 void Bezier_surface::SceneRenderer::FindAndSetDraggedControlPoint(int x, int y)

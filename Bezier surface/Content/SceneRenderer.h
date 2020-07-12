@@ -50,6 +50,13 @@ namespace Bezier_surface
 
 		bool	m_loadingComplete;
 		float	m_degreesPerSecond;
+		
+		float	m_mousePosX;
+		float	m_mousePosY;
+
+		float	m_radiansX;
+		float	m_radiansY;
+
 		bool	m_tracking;
 		bool	m_isRotating;
 		bool	m_isDraggingControlPoint;
