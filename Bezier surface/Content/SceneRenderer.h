@@ -18,6 +18,8 @@ namespace Bezier_surface
 		void ReleaseDeviceDependentResources();
 		void Update(DX::StepTimer const& timer);
 		void Render();
+		void RenderPatch();
+		void RenderControlPoints();
 		void StartTracking();
 		void TrackingUpdate(float positionX, float positionY);
 		void StopTracking();

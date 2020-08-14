@@ -480,10 +480,13 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 	m_d2dContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = { 0 };
-	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 
 	DX::ThrowIfFailed(m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_rasterizerState));
+
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	DX::ThrowIfFailed(m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_wireFrameRasterizerState));
 }
 
 // Determine the dimensions of the render target and whether it will be scaled down.

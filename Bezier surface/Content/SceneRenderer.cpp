@@ -175,26 +175,10 @@ void SceneRenderer::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	XMMATRIX tmpMatrix = XMLoadFloat4x4(&m_Surface->getControlPointsMatrix());
-	tmpMatrix = XMMatrixTranspose(tmpMatrix);
-	XMStoreFloat4x4(&m_calculationBufferData.controlPoints, tmpMatrix);
-
-	m_calculationBufferData.transposedBezierCoeficients = m_Surface->getBezierMatrix();
-	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
-
-	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
-	tmpMatrix = XMMatrixTranspose(tmpMatrix);
-	XMStoreFloat4x4(&m_calculationBufferData.bezierCoeficients, tmpMatrix);
-
-	XMMATRIX m = XMMatrixMultiply(XMMatrixMultiply(XMLoadFloat4x4(&m_Surface->getBezierMatrix()), XMLoadFloat4x4(&m_Surface->getControlPointsMatrix())), tmpMatrix);
-
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
-	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
 
 	auto rasterizer = m_deviceResources->GetRasterizerState();
-
-	context->IASetInputLayout(m_inputLayout.Get());
-	context->RSSetState(rasterizer);
+	auto wireFrameRasterizer = m_deviceResources->GetWireframeRasterizerState();
 
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 
@@ -209,7 +193,15 @@ void SceneRenderer::Render()
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
-	m_Surface->Draw();
+	context->IASetInputLayout(m_inputLayout.Get());
+	context->RSSetState(rasterizer);
+
+	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
+	RenderPatch();
+
+	context->RSSetState(wireFrameRasterizer);
+	m_calculationBufferData.color = { 0.0, 0.0, 0.0, 1.0 };
+	RenderPatch();
 
 	m_calculationBufferData.color = { 1.0, 0.0, 0.0, 1.0 };
 	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
@@ -219,6 +211,29 @@ void SceneRenderer::Render()
 	context->DSSetShader(nullptr, nullptr, 0);
 
 	m_Surface->DrawControlPoints();
+}
+
+void Bezier_surface::SceneRenderer::RenderPatch()
+{
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	XMMATRIX tmpMatrix = XMLoadFloat4x4(&m_Surface->getControlPointsMatrix());
+	tmpMatrix = XMMatrixTranspose(tmpMatrix);
+	XMStoreFloat4x4(&m_calculationBufferData.controlPoints, tmpMatrix);
+
+	m_calculationBufferData.transposedBezierCoeficients = m_Surface->getBezierMatrix();
+
+	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
+	tmpMatrix = XMMatrixTranspose(tmpMatrix);
+	XMStoreFloat4x4(&m_calculationBufferData.bezierCoeficients, tmpMatrix);
+
+	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
+
+	m_Surface->Draw();
+}
+
+void Bezier_surface::SceneRenderer::RenderControlPoints()
+{
 }
 
 void SceneRenderer::CreateDeviceDependentResources()
