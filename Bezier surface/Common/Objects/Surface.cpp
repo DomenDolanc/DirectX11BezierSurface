@@ -144,14 +144,14 @@ void Bezier_surface::Surface::UpdateControlPoint(int index, VertexPosition& vert
 
 void Bezier_surface::Surface::UpdateVertices()
 {
-    m_loadingComplete = false;
+    m_isReadyForDrawing = false;
 
     D3D11_MAPPED_SUBRESOURCE subResource;
     DX::ThrowIfFailed(m_deviceResources->GetD3DDeviceContext()->Map(m_vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource));
     memcpy(subResource.pData, &m_vertices.front(), sizeof(VertexPosition) * m_verticesCount);
     m_deviceResources->GetD3DDeviceContext()->Unmap(m_vertexBuffer.Get(), 0);
 
-    m_loadingComplete = true;
+    m_isReadyForDrawing = true;
 }
 
 size_t Surface::getVerticesCount()

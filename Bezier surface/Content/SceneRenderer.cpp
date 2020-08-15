@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "SceneRenderer.h"
+#include <algorithm>
 #include "..\Common\DirectXHelper.h"
 
 using namespace Bezier_surface;
@@ -9,7 +10,7 @@ using namespace Windows::Foundation;
 
 // Loads vertex and pixel shaders from files and instantiates the cube geometry.
 SceneRenderer::SceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
-	m_loadingComplete(false),
+	m_isReadyForDrawing(false),
 	m_degreesPerSecond(45),
 	m_tracking(false),
 	m_deviceResources(deviceResources)
@@ -57,12 +58,8 @@ void SceneRenderer::CreateWindowSizeDependentResources()
 		XMMatrixTranspose(perspectiveMatrix * orientationMatrix)
 		);
 
-	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMVECTORF32 eye = { 0.0f, 0.7f, 1.5f, 0.0f };
-	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
-	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
 
-	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(m_Eye, m_At, m_Up)));
 	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixIdentity());
 }
 
@@ -164,11 +161,21 @@ void SceneRenderer::StopTracking()
 	m_isDraggingControlPoint = false;
 }
 
+void Bezier_surface::SceneRenderer::UpdateZoom(int zoomFactor)
+{
+	constexpr float MIN_ZOOM = 1.5;
+	constexpr float MAX_ZOOM = 6.0;
+	m_isReadyForDrawing = false;
+	m_Eye = { m_Eye[0], m_Eye[1], std::clamp(static_cast<float>(-zoomFactor), MIN_ZOOM, MAX_ZOOM), 0.0f };
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(m_Eye, m_At, m_Up)));
+	m_isReadyForDrawing = true;
+}
+
 // Renders one frame using the vertex and pixel shaders.
 void SceneRenderer::Render()
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
-	if (!m_loadingComplete || !m_Surface->isReadyForDrawing())
+	if (!m_isReadyForDrawing || !m_Surface->isReadyForDrawing())
 	{
 		return;
 	}
@@ -320,13 +327,13 @@ void SceneRenderer::CreateDeviceDependentResources()
 
 	// Once the cube is loaded, the object is ready to be rendered.
 	createCubeTask.then([this] () {
-		m_loadingComplete = true;
+		m_isReadyForDrawing = true;
 	});
 }
 
 void SceneRenderer::ReleaseDeviceDependentResources()
 {
-	m_loadingComplete = false;
+	m_isReadyForDrawing = false;
 	m_vertexShader.Reset();
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();

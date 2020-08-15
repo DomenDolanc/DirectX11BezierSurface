@@ -18,6 +18,7 @@ namespace Bezier_surface
 		void TrackingUpdate(float positionX, float positionY) { m_pointerLocationX = positionX; m_pointerLocationY = positionY; }
 		void StopTracking() { m_sceneRenderer->StopTracking(); }
 		bool IsTracking() { return m_sceneRenderer->IsTracking(); }
+		void UpdateZoom(int zoomFactor);
 		void StartRenderLoop();
 		void StopRenderLoop();
 		Concurrency::critical_section& GetCriticalSection() { return m_criticalSection; }
@@ -47,5 +48,7 @@ namespace Bezier_surface
 		// Track current input pointer position.
 		float m_pointerLocationX;
 		float m_pointerLocationY;
+
+		int m_zoomFactor;
 	};
 }

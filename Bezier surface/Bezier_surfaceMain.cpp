@@ -40,6 +40,12 @@ void Bezier_surfaceMain::CreateWindowSizeDependentResources()
 	m_sceneRenderer->CreateWindowSizeDependentResources();
 }
 
+void Bezier_surfaceMain::UpdateZoom(int zoomFactor)
+{
+	m_zoomFactor += zoomFactor;
+	m_sceneRenderer->UpdateZoom(m_zoomFactor);
+}
+
 void Bezier_surfaceMain::StartRenderLoop()
 {
 	// If the animation render loop is already running then do not start another thread.

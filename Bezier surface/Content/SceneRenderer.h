@@ -24,6 +24,7 @@ namespace Bezier_surface
 		void TrackingUpdate(float positionX, float positionY);
 		void StopTracking();
 		bool IsTracking() { return m_tracking; }
+		void UpdateZoom(int zoomFactor);
 
 
 	private:
@@ -50,11 +51,17 @@ namespace Bezier_surface
 
 		ControlPointParams m_HoveredControlPoint;
 
-		bool	m_loadingComplete;
+		DirectX::XMVECTORF32 m_Eye = { 0.0f, 0.7f, 1.5f, 0.0f };
+		DirectX::XMVECTORF32 m_At = { 0.0f, -0.1f, 0.0f, 0.0f };
+		DirectX::XMVECTORF32 m_Up = { 0.0f, 1.0f, 0.0f, 0.0f };
+
+		bool	m_isReadyForDrawing;
 		float	m_degreesPerSecond;
 		
 		float	m_mousePosX;
 		float	m_mousePosY;
+
+		int		m_zoomFactor = 1;
 
 		float	m_radiansX;
 		float	m_radiansY;

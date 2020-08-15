@@ -34,7 +34,7 @@ namespace Bezier_surface
 
         std::vector<VertexPosition> getVertices() const { return m_vertices; };
 
-        boolean isReadyForDrawing() const { return m_loadingComplete; };
+        boolean isReadyForDrawing() const { return m_isReadyForDrawing; };
 
         void setScaling(double scaling);
 
@@ -69,7 +69,7 @@ namespace Bezier_surface
         DirectX::XMFLOAT4X4 m_bezierMatrix;
 
         
-        bool m_loadingComplete = true;
+        bool m_isReadyForDrawing = true;
 
         Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
         Microsoft::WRL::ComPtr<ID3D11Buffer> m_controlIndexBuffer;

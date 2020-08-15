@@ -72,6 +72,7 @@ DirectXPage::DirectXPage():
 		m_coreInput->PointerPressed += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerPressed);
 		m_coreInput->PointerMoved += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerMoved);
 		m_coreInput->PointerReleased += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerReleased);
+		m_coreInput->PointerWheelChanged += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerWheelChanged);
 
 		// Begin processing input messages as they're delivered.
 		m_coreInput->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
@@ -179,6 +180,11 @@ void DirectXPage::OnPointerReleased(Object^ sender, PointerEventArgs^ e)
 {
 	// Stop tracking pointer movement when the pointer is released.
 	m_main->StopTracking();
+}
+
+void Bezier_surface::DirectXPage::OnPointerWheelChanged(Platform::Object^ sender, Windows::UI::Core::PointerEventArgs^ e)
+{
+	m_main->UpdateZoom(e->CurrentPoint->Properties->MouseWheelDelta / WHEEL_DELTA);
 }
 
 void DirectXPage::OnCompositionScaleChanged(SwapChainPanel^ sender, Object^ args)
