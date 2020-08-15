@@ -18,6 +18,7 @@ cbuffer CalculationConstantBuffer : register(b1)
 struct DS_OUTPUT
 {
     float4 pos : SV_POSITION;
+    float3 worldPos : POSITION0;
     float2 controlPoint : TEXCOORD0;
     float3 color : COLOR0;
 };
@@ -25,6 +26,7 @@ struct DS_OUTPUT
 struct HS_CONTROL_POINT_OUTPUT
 {
     float4 pos : SV_POSITION;
+    float3 worldPos : POSITION0;
     float2 controlPoint : TEXCOORD0;
     float3 color : COLOR0;
 };
@@ -43,15 +45,11 @@ float getInterpolatedHeght(float2 controlPos)
     return dot(row, vVec);
 }
 
-float4 getInterpolatedPoint(float2 controlPos)
+float3 getInterpolatedPoint(float2 controlPos)
 {
     float height = getInterpolatedHeght(controlPos);
     controlPos -= 0.5f;
-    float4 pos = float4(controlPos.x, height, controlPos.y, 1.0);
-    pos = mul(pos, model);
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
-    return pos;
+    return float3(controlPos.x, height, controlPos.y);
 }
 
 #define NUM_CONTROL_POINTS 4
@@ -65,7 +63,13 @@ DS_OUTPUT main(
     DS_OUTPUT Output;
 
     Output.controlPoint = lerp(lerp(patch[0].controlPoint, patch[1].controlPoint, domain.x), lerp(patch[2].controlPoint, patch[3].controlPoint, domain.x), domain.y);
-    Output.pos = getInterpolatedPoint(Output.controlPoint);
+    float3 pos = getInterpolatedPoint(Output.controlPoint);
+    
+    Output.pos = float4(pos, 1.0);
+    Output.pos = mul(Output.pos, model);
+    Output.worldPos = Output.pos.xyz;
+    Output.pos = mul(Output.pos, view);
+    Output.pos = mul(Output.pos, projection);
     Output.color = lerp(lerp(patch[0].color, patch[1].color, domain.x), lerp(patch[2].color, patch[3].color, domain.x), domain.y);
 
     return Output;

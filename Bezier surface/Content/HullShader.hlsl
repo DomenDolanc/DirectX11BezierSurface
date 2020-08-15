@@ -11,6 +11,7 @@ cbuffer CalculationConstantBuffer : register(b0)
 struct VS_CONTROL_POINT_OUTPUT
 {
     float4 pos : SV_POSITION;
+    float3 worldPos : POSITION0;
     float2 controlPoint : TEXCOORD0;
     float3 color : COLOR0;
 };
@@ -18,6 +19,7 @@ struct VS_CONTROL_POINT_OUTPUT
 struct HS_CONTROL_POINT_OUTPUT
 {
     float4 pos : SV_POSITION;
+    float3 worldPos : POSITION0;
     float2 controlPoint : TEXCOORD0;
     float3 color : COLOR0;
 };
@@ -59,6 +61,7 @@ HS_CONTROL_POINT_OUTPUT main(
 	HS_CONTROL_POINT_OUTPUT Output;
 
 	Output.pos = ip[i].pos;
+    Output.worldPos = ip[i].worldPos;
 	Output.controlPoint = ip[i].controlPoint;
 	Output.color = ip[i].color;
 
