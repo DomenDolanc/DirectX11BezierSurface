@@ -186,6 +186,16 @@ void Bezier_surface::SceneRenderer::UpdateTessellationFactor(int tesselationFact
 	m_tessellationFactor = tesselationFactor;
 }
 
+void Bezier_surface::SceneRenderer::UpdatePatchColor(Windows::UI::Color patchColor)
+{
+	constexpr float COMPONENT_DIVIDOR = 255.0;
+	m_patchColor = { patchColor.R / COMPONENT_DIVIDOR, 
+					patchColor.G / COMPONENT_DIVIDOR, 
+					patchColor.B / COMPONENT_DIVIDOR, 
+					patchColor.A / COMPONENT_DIVIDOR 
+	};
+}
+
 // Renders one frame using the vertex and pixel shaders.
 void SceneRenderer::Render()
 {
@@ -219,7 +229,7 @@ void SceneRenderer::Render()
 	context->IASetInputLayout(m_inputLayout.Get());
 	context->RSSetState(rasterizer);
 
-	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
+	m_calculationBufferData.color = m_patchColor;
 	RenderPatch();
 
 	if (m_usePatchWireframe)

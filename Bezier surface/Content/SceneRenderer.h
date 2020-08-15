@@ -29,6 +29,7 @@ namespace Bezier_surface
 		void UsePatchWireframe(bool usePatchWireframe);
 		void DoDrawControlPoints(bool drawControlPoints);
 		void UpdateTessellationFactor(int tesselationFactor);
+		void UpdatePatchColor(Windows::UI::Color patchColor);
 	private:
 		void Rotate(float radiansX, float radiansY);
 
@@ -75,6 +76,7 @@ namespace Bezier_surface
 		bool	m_usePatchWireframe = true;
 		bool	m_doDrawControlPoints = true;
 		int		m_tessellationFactor = 1;
+		DirectX::XMFLOAT4 m_patchColor = { 1.0, 1.0, 1.0, 1.0 };
 	};
 }
 

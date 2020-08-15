@@ -193,6 +193,7 @@ void Bezier_surface::DirectXPage::TessellationFactorSlider_ValueChanged(Platform
 		return;
 
 	m_main->UpdateTessellationFactor(static_cast<int>(TessellationFactorSlider->Value));
+	TessellationFactorText->Text = "Tessellation factor: " + TessellationFactorSlider->Value.ToString();
 }
 
 void Bezier_surface::DirectXPage::PatchWireframe_Changed(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
@@ -209,6 +210,14 @@ void Bezier_surface::DirectXPage::DrawControlPoints_Changed(Platform::Object^ se
 		return;
 
 	m_main->DoDrawControlPoints(DrawControlPointsCheckBox->IsChecked->Value);
+}
+
+void Bezier_surface::DirectXPage::PatchColor_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::ColorChangedEventArgs^ e)
+{
+	if (!this->IsLoaded)
+		return;
+
+	m_main->UpdatePatchColor(PatchColor->Color);
 }
 
 void DirectXPage::OnCompositionScaleChanged(SwapChainPanel^ sender, Object^ args)

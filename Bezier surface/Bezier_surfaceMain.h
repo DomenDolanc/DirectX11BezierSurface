@@ -24,6 +24,7 @@ namespace Bezier_surface
 		void UsePatchWireframe(bool usePatchWireframe);
 		void DoDrawControlPoints(bool drawControlPoints);
 		void UpdateTessellationFactor(int tesselationFactor);
+		void UpdatePatchColor(Windows::UI::Color patchColor);
 
 		Concurrency::critical_section& GetCriticalSection() { return m_criticalSection; }
 

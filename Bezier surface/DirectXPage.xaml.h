@@ -54,6 +54,7 @@ namespace Bezier_surface
 		void TessellationFactorSlider_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e);
 		void PatchWireframe_Changed(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void DrawControlPoints_Changed(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void PatchColor_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::ColorChangedEventArgs^ e);
 
 		// Resources used to render the DirectX content in the XAML page background.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;

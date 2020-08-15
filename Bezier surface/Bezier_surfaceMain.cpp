@@ -88,6 +88,11 @@ void Bezier_surface::Bezier_surfaceMain::UpdateTessellationFactor(int tesselatio
 	m_sceneRenderer->UpdateTessellationFactor(tesselationFactor);
 }
 
+void Bezier_surface::Bezier_surfaceMain::UpdatePatchColor(Windows::UI::Color patchColor)
+{
+	m_sceneRenderer->UpdatePatchColor(patchColor);
+}
+
 void Bezier_surface::Bezier_surfaceMain::DoDrawControlPoints(bool drawControlPoints)
 {
 	m_sceneRenderer->DoDrawControlPoints(drawControlPoints);

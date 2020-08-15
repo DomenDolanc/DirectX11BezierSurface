@@ -55,7 +55,8 @@
                         Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
                         Width="300" Background="Black">
 
-                <TextBlock Text="Tessellation factor: "
+                <TextBlock Name="TessellationFactorText"
+                   Text="Tessellation factor: 1"
                    Foreground="White"
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Top"
@@ -69,6 +70,22 @@
                     Value="4"
                     ValueChanged="TessellationFactorSlider_ValueChanged"
                  />
+            </StackPanel>
+
+            <StackPanel Margin="0 6 0 0"
+                        Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
+                        Width="300" Background="Black">
+
+                <TextBlock Text="Patch color"
+                   Foreground="White"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Top"
+                   FontSize="12" />
+                <ColorPicker Name="PatchColor"
+                    Color="White"
+                    ColorSpectrumShape="Ring"
+                    ColorChanged="PatchColor_ValueChanged"
+                />
             </StackPanel>
         </StackPanel>
     </SwapChainPanel>
