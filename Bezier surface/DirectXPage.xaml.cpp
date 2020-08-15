@@ -187,6 +187,30 @@ void Bezier_surface::DirectXPage::OnPointerWheelChanged(Platform::Object^ sender
 	m_main->UpdateZoom(e->CurrentPoint->Properties->MouseWheelDelta / WHEEL_DELTA);
 }
 
+void Bezier_surface::DirectXPage::TessellationFactorSlider_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e)
+{
+	if (!this->IsLoaded)
+		return;
+
+	m_main->UpdateTessellationFactor(static_cast<int>(TessellationFactorSlider->Value));
+}
+
+void Bezier_surface::DirectXPage::PatchWireframe_Changed(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	if (!this->IsLoaded)
+		return;
+
+	m_main->UsePatchWireframe(DrawPatchWireframeCheckBox->IsChecked->Value);
+}
+
+void Bezier_surface::DirectXPage::DrawControlPoints_Changed(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	if (!this->IsLoaded)
+		return;
+
+	m_main->DoDrawControlPoints(DrawControlPointsCheckBox->IsChecked->Value);
+}
+
 void DirectXPage::OnCompositionScaleChanged(SwapChainPanel^ sender, Object^ args)
 {
 	critical_section::scoped_lock lock(m_main->GetCriticalSection());

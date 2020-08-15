@@ -78,6 +78,21 @@ void Bezier_surfaceMain::StopRenderLoop()
 	m_renderLoopWorker->Cancel();
 }
 
+void Bezier_surface::Bezier_surfaceMain::UsePatchWireframe(bool usePatchWireframe)
+{
+	m_sceneRenderer->UsePatchWireframe(usePatchWireframe);
+}
+
+void Bezier_surface::Bezier_surfaceMain::UpdateTessellationFactor(int tesselationFactor)
+{
+	m_sceneRenderer->UpdateTessellationFactor(tesselationFactor);
+}
+
+void Bezier_surface::Bezier_surfaceMain::DoDrawControlPoints(bool drawControlPoints)
+{
+	m_sceneRenderer->DoDrawControlPoints(drawControlPoints);
+}
+
 // Updates the application state once per frame.
 void Bezier_surfaceMain::Update() 
 {

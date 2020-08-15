@@ -10,6 +10,9 @@ cbuffer CalculationConstantBuffer : register(b1)
     matrix bezierCoeficients;
     matrix transposedBezierCoeficients;
     matrix controlPoints;
+    float4 color;
+    float tessellationFactor;
+    float3 padding;
 };
 
 struct DS_OUTPUT

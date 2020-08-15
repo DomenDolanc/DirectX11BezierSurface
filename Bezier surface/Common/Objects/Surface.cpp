@@ -199,7 +199,7 @@ void Surface::Draw()
     context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Surface::DrawControlPoints()
+void Surface::DoDrawControlPoints()
 {
     auto context = m_deviceResources->GetD3DDeviceContext();
 

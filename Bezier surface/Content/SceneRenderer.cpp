@@ -84,7 +84,7 @@ void SceneRenderer::StartTracking()
 // When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
 void SceneRenderer::TrackingUpdate(float positionX, float positionY)
 {
-	if (m_Surface->isReadyForDrawing() && !m_isDraggingControlPoint && !m_isRotating)
+	if (m_Surface->isReadyForDrawing() && !m_isDraggingControlPoint && !m_isRotating && m_doDrawControlPoints)
 		FindAndSetDraggedControlPoint(positionX, positionY);
 
 	if (m_tracking)
@@ -171,6 +171,21 @@ void Bezier_surface::SceneRenderer::UpdateZoom(int zoomFactor)
 	m_isReadyForDrawing = true;
 }
 
+void Bezier_surface::SceneRenderer::UsePatchWireframe(bool usePatchWireframe)
+{
+	m_usePatchWireframe = usePatchWireframe;
+}
+
+void Bezier_surface::SceneRenderer::DoDrawControlPoints(bool drawControlPoints)
+{
+	m_doDrawControlPoints = drawControlPoints;
+}
+
+void Bezier_surface::SceneRenderer::UpdateTessellationFactor(int tesselationFactor)
+{
+	m_tessellationFactor = tesselationFactor;
+}
+
 // Renders one frame using the vertex and pixel shaders.
 void SceneRenderer::Render()
 {
@@ -197,6 +212,7 @@ void SceneRenderer::Render()
 	context->DSSetShader(m_domainShader.Get(), nullptr, 0);
 	context->DSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 	context->DSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
+	context->HSSetConstantBuffers1(0, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
@@ -206,18 +222,15 @@ void SceneRenderer::Render()
 	m_calculationBufferData.color = { 1.0, 1.0, 1.0, 1.0 };
 	RenderPatch();
 
-	context->RSSetState(wireFrameRasterizer);
-	m_calculationBufferData.color = { 0.0, 0.0, 0.0, 1.0 };
-	RenderPatch();
+	if (m_usePatchWireframe)
+	{
+		context->RSSetState(wireFrameRasterizer);
+		m_calculationBufferData.color = { 0.0, 0.0, 0.0, 1.0 };
+		RenderPatch();
+	}
 
-	m_calculationBufferData.color = { 1.0, 0.0, 0.0, 1.0 };
-	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	context->HSSetShader(nullptr, nullptr, 0);
-	context->DSSetShader(nullptr, nullptr, 0);
-
-	m_Surface->DrawControlPoints();
+	if (m_doDrawControlPoints)
+		RenderControlPoints();
 }
 
 void Bezier_surface::SceneRenderer::RenderPatch()
@@ -233,6 +246,7 @@ void Bezier_surface::SceneRenderer::RenderPatch()
 	tmpMatrix = XMLoadFloat4x4(&m_Surface->getBezierMatrix());
 	tmpMatrix = XMMatrixTranspose(tmpMatrix);
 	XMStoreFloat4x4(&m_calculationBufferData.bezierCoeficients, tmpMatrix);
+	m_calculationBufferData.tessellationFactor = static_cast<float>(m_tessellationFactor);
 
 	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
 
@@ -241,6 +255,16 @@ void Bezier_surface::SceneRenderer::RenderPatch()
 
 void Bezier_surface::SceneRenderer::RenderControlPoints()
 {
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	m_calculationBufferData.color = { 1.0, 0.0, 0.0, 1.0 };
+	context->UpdateSubresource1(m_calculationConstantBuffer.Get(), 0, NULL, &m_calculationBufferData, 0, 0, 0);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	context->HSSetShader(nullptr, nullptr, 0);
+	context->DSSetShader(nullptr, nullptr, 0);
+
+	m_Surface->DoDrawControlPoints();
 }
 
 void SceneRenderer::CreateDeviceDependentResources()

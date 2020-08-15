@@ -47,7 +47,7 @@ namespace Bezier_surface
         void ResetBuffers();
 
         void Draw();
-        void DrawControlPoints();
+        void DoDrawControlPoints();
 
     private:
         void CreateBezierMatrix();

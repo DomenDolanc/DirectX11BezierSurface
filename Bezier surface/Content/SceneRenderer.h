@@ -26,7 +26,9 @@ namespace Bezier_surface
 		bool IsTracking() { return m_tracking; }
 		void UpdateZoom(int zoomFactor);
 
-
+		void UsePatchWireframe(bool usePatchWireframe);
+		void DoDrawControlPoints(bool drawControlPoints);
+		void UpdateTessellationFactor(int tesselationFactor);
 	private:
 		void Rotate(float radiansX, float radiansY);
 
@@ -69,6 +71,10 @@ namespace Bezier_surface
 		bool	m_tracking;
 		bool	m_isRotating;
 		bool	m_isDraggingControlPoint;
+
+		bool	m_usePatchWireframe = true;
+		bool	m_doDrawControlPoints = true;
+		int		m_tessellationFactor = 1;
 	};
 }
 

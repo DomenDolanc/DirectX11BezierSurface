@@ -1,3 +1,13 @@
+cbuffer CalculationConstantBuffer : register(b0)
+{
+    matrix bezierCoeficients;
+    matrix transposedBezierCoeficients;
+    matrix controlPoints;
+    float4 color;
+    float tessellationFactor;
+    float3 padding;
+};
+
 struct VS_CONTROL_POINT_OUTPUT
 {
     float4 pos : SV_POSITION;
@@ -31,7 +41,7 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 		Output.EdgeTessFactor[2] = 
 		Output.EdgeTessFactor[3] = 
 		Output.InsideTessFactor[0] = 
-		Output.InsideTessFactor[1] = 32;
+		Output.InsideTessFactor[1] = tessellationFactor;
 
 	return Output;
 }

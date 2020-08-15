@@ -21,6 +21,10 @@ namespace Bezier_surface
 		void UpdateZoom(int zoomFactor);
 		void StartRenderLoop();
 		void StopRenderLoop();
+		void UsePatchWireframe(bool usePatchWireframe);
+		void DoDrawControlPoints(bool drawControlPoints);
+		void UpdateTessellationFactor(int tesselationFactor);
+
 		Concurrency::critical_section& GetCriticalSection() { return m_criticalSection; }
 
 		// IDeviceNotify

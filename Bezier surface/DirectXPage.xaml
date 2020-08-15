@@ -8,7 +8,70 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-  <SwapChainPanel x:Name="swapChainPanel"/>
+    <SwapChainPanel x:Name="swapChainPanel">
+
+        <StackPanel Name="SettingsPanel"
+                        Margin="0 24 0 0"
+                        Padding="8 0 0 0"
+                        Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
+                        Width="300" Background="Black">
+
+            <StackPanel
+                    Orientation="Horizontal"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Left">
+                <TextBlock 
+                        Text="Draw patch wireframe" 
+                        Foreground="White" 
+                        FontSize="12"
+                        Margin="0, 6, 0 0"
+                    />
+                <CheckBox 
+                        Name = "DrawPatchWireframeCheckBox"
+                        IsChecked="True"
+                        Checked="PatchWireframe_Changed"
+                        Unchecked="PatchWireframe_Changed"
+                        Margin = "12, 0, 12, 0"/>
+            </StackPanel>
+
+            <StackPanel
+                    Orientation="Horizontal"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Left">
+                <TextBlock 
+                        Text="Draw control points" 
+                        Foreground="White" 
+                        FontSize="12"
+                        Margin="0, 6, 0 0"
+                    />
+                <CheckBox 
+                        Name = "DrawControlPointsCheckBox"  
+                        IsChecked="True"
+                    
+                        Checked="DrawControlPoints_Changed"
+                        Unchecked="DrawControlPoints_Changed"
+                        Margin = "12, 0, 12, 0"/>
+            </StackPanel>
+
+            <StackPanel Margin="0 6 0 0"
+                        Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
+                        Width="300" Background="Black">
+
+                <TextBlock Text="Tessellation factor: "
+                   Foreground="White"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Top"
+                   FontSize="12" />
+                <Slider Name="TessellationFactorSlider"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+                    Margin="12,0,12,0" 
+                    Foreground="White"
+                    Minimum="1"
+                    Maximum="64"
+                    Value="4"
+                    ValueChanged="TessellationFactorSlider_ValueChanged"
+                 />
+            </StackPanel>
+        </StackPanel>
+    </SwapChainPanel>
 
     <Page.BottomAppBar>
     <AppBar x:Name="bottomAppBar" Padding="10,0,10,0">
