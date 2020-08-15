@@ -164,7 +164,7 @@ size_t Surface::getIndicesCount()
     return m_indexCount;
 }
 
-void Surface::setScaling(double scaling)
+void Surface::setScaling(float scaling)
 {
     m_scaling = scaling;
 }

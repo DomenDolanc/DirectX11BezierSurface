@@ -75,7 +75,7 @@ namespace Bezier_surface
 
 		bool	m_usePatchWireframe = true;
 		bool	m_doDrawControlPoints = true;
-		int		m_tessellationFactor = 1;
+		int		m_tessellationFactor = 4;
 		DirectX::XMFLOAT4 m_patchColor = { 1.0, 1.0, 1.0, 1.0 };
 	};
 }

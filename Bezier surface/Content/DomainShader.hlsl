@@ -64,8 +64,8 @@ DS_OUTPUT main(
 {
     DS_OUTPUT Output;
 
-    float2 controlPos = lerp(lerp(patch[0].controlPoint, patch[1].controlPoint, domain.x), lerp(patch[2].controlPoint, patch[3].controlPoint, domain.x), domain.y);
-    Output.pos = getInterpolatedPoint(controlPos);
+    Output.controlPoint = lerp(lerp(patch[0].controlPoint, patch[1].controlPoint, domain.x), lerp(patch[2].controlPoint, patch[3].controlPoint, domain.x), domain.y);
+    Output.pos = getInterpolatedPoint(Output.controlPoint);
     Output.color = lerp(lerp(patch[0].color, patch[1].color, domain.x), lerp(patch[2].color, patch[3].color, domain.x), domain.y);
 
     return Output;

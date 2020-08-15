@@ -56,7 +56,7 @@
                         Width="300" Background="Black">
 
                 <TextBlock Name="TessellationFactorText"
-                   Text="Tessellation factor: 1"
+                   Text="Tessellation factor: 4"
                    Foreground="White"
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Top"

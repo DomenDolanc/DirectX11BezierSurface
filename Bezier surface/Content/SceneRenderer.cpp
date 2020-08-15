@@ -84,14 +84,16 @@ void SceneRenderer::StartTracking()
 // When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
 void SceneRenderer::TrackingUpdate(float positionX, float positionY)
 {
+	int posX = static_cast<int>(positionX);
+	int posY = static_cast<int>(positionY);
 	if (m_Surface->isReadyForDrawing() && !m_isDraggingControlPoint && !m_isRotating && m_doDrawControlPoints)
-		FindAndSetDraggedControlPoint(positionX, positionY);
+		FindAndSetDraggedControlPoint(posX, posY);
 
 	if (m_tracking)
 	{
-		if (m_isDraggingControlPoint)
+		if (m_isDraggingControlPoint && m_HoveredControlPoint.VertexIndex > -1)
 		{
-			m_HoveredControlPoint.Vertex.pos = UnprojectDraggedControlPoint(positionX, positionY);
+			m_HoveredControlPoint.Vertex.pos = UnprojectDraggedControlPoint(posX, posY);
 			m_Surface->UpdateControlPoint(m_HoveredControlPoint.VertexIndex, m_HoveredControlPoint.Vertex);
 		} 
 		else
@@ -118,7 +120,7 @@ void Bezier_surface::SceneRenderer::FindAndSetDraggedControlPoint(int x, int y)
 	XMMATRIX view = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.view));
 	XMMATRIX model = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.model));
 
-	for (int i = 0; i < vertices.size(); i++)
+	for (size_t i = 0; i < vertices.size(); i++)
 	{
 		VertexPosition vertex = vertices[i];
 		ProjectedPoint projected = DX::ProjectToScreen(vertex.pos, model, view, proj, viewPort);
@@ -145,7 +147,7 @@ DirectX::XMFLOAT3 Bezier_surface::SceneRenderer::UnprojectDraggedControlPoint(in
 	XMMATRIX proj = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.projection));
 	XMMATRIX view = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.view));
 	XMMATRIX model = XMMatrixTranspose(XMLoadFloat4x4(&m_constantBufferData.model));
-	XMVECTOR clipSpace = XMVectorSet(x, y, m_HoveredControlPoint.Depth, 0.0f);
+	XMVECTOR clipSpace = XMVectorSet(static_cast<float>(x), static_cast<float>(y), m_HoveredControlPoint.Depth, 0.0f);
 
 	XMVECTOR unprojected = XMVector3Unproject(clipSpace, 0.0f, 0.0f, viewPort.Width, viewPort.Height, 0.0f, 1.0f, proj, view, XMMatrixIdentity());
 	unprojected = XMVector3Transform(unprojected, XMMatrixInverse(nullptr, model));
@@ -159,6 +161,7 @@ void SceneRenderer::StopTracking()
 	m_tracking = false;
 	m_isRotating = false;
 	m_isDraggingControlPoint = false;
+	m_HoveredControlPoint.VertexIndex = -1;
 }
 
 void Bezier_surface::SceneRenderer::UpdateZoom(int zoomFactor)

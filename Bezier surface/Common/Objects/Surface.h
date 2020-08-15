@@ -11,7 +11,7 @@ namespace Bezier_surface
     {
         VertexPosition Vertex;
         int VertexIndex;
-        double Depth;
+        float Depth;
     };
 
     class Surface
@@ -36,7 +36,7 @@ namespace Bezier_surface
 
         boolean isReadyForDrawing() const { return m_isReadyForDrawing; };
 
-        void setScaling(double scaling);
+        void setScaling(float scaling);
 
         DirectX::XMFLOAT2 getGridSize();
         void setGridSize(float columns, float rows);
