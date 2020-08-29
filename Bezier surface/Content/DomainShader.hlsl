@@ -3,6 +3,7 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
     matrix model;
     matrix view;
     matrix projection;
+    float4 eye;
 };
 
 cbuffer CalculationConstantBuffer : register(b1)

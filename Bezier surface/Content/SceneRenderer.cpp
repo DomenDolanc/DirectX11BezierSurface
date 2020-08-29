@@ -210,6 +210,8 @@ void SceneRenderer::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
+	XMStoreFloat4(&m_constantBufferData.eye, m_Eye);
+
 	context->UpdateSubresource1(m_constantBuffer.Get(), 0, NULL, &m_constantBufferData, 0, 0, 0);
 
 	auto rasterizer = m_deviceResources->GetRasterizerState();
@@ -219,6 +221,8 @@ void SceneRenderer::Render()
 
 	context->VSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 	context->VSSetConstantBuffers1(1, 1, m_calculationConstantBuffer.GetAddressOf(), nullptr, nullptr);
+
+	context->PSSetConstantBuffers1(0, 1, m_constantBuffer.GetAddressOf(), nullptr, nullptr);
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	context->HSSetShader(m_hullShader.Get(), nullptr, 0);
