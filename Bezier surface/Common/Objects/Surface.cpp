@@ -137,6 +137,9 @@ void Surface::CreateQuadIndices()
 
 void Bezier_surface::Surface::UpdateControlPoint(int index, VertexPosition& vertex)
 {
+    if (index == -1)
+        return;
+
     m_vertices[index].pos.y = vertex.pos.y;
     m_controlPointsMatrix.m[index / m_Rows][index - (index / m_Rows * m_Columns)] = vertex.pos.y;
     UpdateVertices();
