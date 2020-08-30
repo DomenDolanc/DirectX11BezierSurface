@@ -11,10 +11,26 @@
     <SwapChainPanel x:Name="swapChainPanel">
 
         <StackPanel Name="SettingsPanel"
-                        Margin="0 24 0 0"
+                        Margin="0 0 0 0"
                         Padding="8 0 0 0"
                         Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
                         Width="300" Background="Black">
+
+            <TextBlock 
+                        Text="Drag and move control point to raise or lower it" 
+                        Foreground="LightGray" 
+                        FontSize="10"
+                        FontStyle="Italic"
+                        Margin="0, 6, 0 0"
+                    />
+
+            <TextBlock 
+                        Text="Drag and move mouse to rotate view" 
+                        Foreground="LightGray" 
+                        FontSize="10"
+                        FontStyle="Italic"
+                        Margin="0, 6, 0 0"
+                    />
 
             <StackPanel
                     Orientation="Horizontal"
@@ -89,14 +105,4 @@
             </StackPanel>
         </StackPanel>
     </SwapChainPanel>
-
-    <Page.BottomAppBar>
-    <AppBar x:Name="bottomAppBar" Padding="10,0,10,0">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-        <AppBarButton AutomationProperties.Name="Sample Button"
-                      AutomationProperties.AutomationId="SampleAppBarButton"
-                      Click="AppBarButton_Click"/>
-      </StackPanel>
-    </AppBar>
-  </Page.BottomAppBar>
 </Page>
