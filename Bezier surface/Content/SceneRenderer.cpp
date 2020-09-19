@@ -169,7 +169,7 @@ void Bezier_surface::SceneRenderer::UpdateZoom(int zoomFactor)
 	constexpr float MIN_ZOOM = 1.5;
 	constexpr float MAX_ZOOM = 6.0;
 	m_isReadyForDrawing = false;
-	m_Eye = { m_Eye[0], m_Eye[1], std::clamp(static_cast<float>(-zoomFactor), MIN_ZOOM, MAX_ZOOM), 0.0f };
+	m_Eye = { m_Eye[0], m_Eye[1], std::clamp(static_cast<float>(zoomFactor), MIN_ZOOM, MAX_ZOOM), 0.0f };
 	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(m_Eye, m_At, m_Up)));
 	m_isReadyForDrawing = true;
 }

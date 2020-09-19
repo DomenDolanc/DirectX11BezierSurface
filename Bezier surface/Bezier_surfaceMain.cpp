@@ -42,7 +42,7 @@ void Bezier_surfaceMain::CreateWindowSizeDependentResources()
 
 void Bezier_surfaceMain::UpdateZoom(int zoomFactor)
 {
-	m_zoomFactor += zoomFactor;
+	m_zoomFactor -= zoomFactor;
 	m_sceneRenderer->UpdateZoom(m_zoomFactor);
 }
 
